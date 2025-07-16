@@ -1,0 +1,622 @@
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sign Up - ElectroStock{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .pulse-slow {
+            animation: pulse 3s infinite;
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+
+        .strength-weak { color: #ef4444; }
+        .strength-fair { color: #f59e0b; }
+        .strength-good { color: #10b981; }
+        .strength-strong { color: #059669; }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4">
+    <!-- Background decorative elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-10 left-10 w-20 h-20 bg-white bg-opacity-10 rounded-full floating-animation"></div>
+        <div class="absolute top-1/4 right-20 w-16 h-16 bg-white bg-opacity-10 rounded-full floating-animation" style="animation-delay: -2s;"></div>
+        <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-white bg-opacity-10 rounded-full floating-animation" style="animation-delay: -4s;"></div>
+        <div class="absolute bottom-1/4 right-1/3 w-8 h-8 bg-white bg-opacity-10 rounded-full floating-animation" style="animation-delay: -1s;"></div>
+    </div>
+
+    <div class="w-full max-w-lg relative z-10">
+        <!-- Logo and Brand Section -->
+        <div class="text-center mb-8 fade-in">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-4 backdrop-blur-sm">
+                <i data-lucide="package" class="h-8 w-8 text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">ElectroStock</h1>
+            <p class="text-white text-opacity-80">Create your account to get started</p>
+        </div>
+
+        <!-- Signup Card -->
+        <div class="glass-effect rounded-2xl shadow-2xl p-8 slide-in">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Account</h2>
+
+            </div>
+
+            {% if error %}
+            <!-- Overlay -->
+            <div id="errorModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <!-- Modal -->
+                <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center animate-fade-in">
+                    <div class="flex flex-col items-center space-y-4">
+                        <i data-lucide="alert-triangle" class="text-red-500 w-8 h-8"></i>
+                        <h2 class="text-lg font-semibold text-gray-800">Error</h2>
+                        <p class="text-gray-600 text-sm">{{ error }}</p>
+                        <button onclick="closeErrorModal()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Close the modal when OK button is clicked
+                function closeErrorModal() {
+                    const modal = document.getElementById('errorModal');
+                    modal.style.display = 'none';
+                }
+
+                // Initialize Lucide icons (since this is rendered dynamically)
+                lucide.createIcons();
+            </script>
+            {% endif %}
+
+
+            <!-- Signup Form -->
+            <form action="{% block form_action %}/auth/signup{% endblock %}" method="post" class="space-y-1" id="signupForm">
+
+                <!-- Name Fields Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <!-- First Name Field -->
+                    <div class="space-y-1">
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">
+                            <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>
+                            First Name
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="first_name"
+                                name="first_name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-300 pl-12"
+                                placeholder="Enter first name"
+                                required
+
+                            />
+                            <i data-lucide="user" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Last Name Field -->
+                    <div class="space-y-1">
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">
+                            <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>
+                            Last Name
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="last_name"
+                                name="last_name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-300 pl-12"
+                                placeholder="Enter last name"
+                                required
+                            />
+                            <i data-lucide="user" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div class="space-y-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        <i data-lucide="mail" class="h-4 w-4 inline mr-2"></i>
+                        Email Address
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-300 pl-12"
+                            placeholder="Enter your email"
+                            required
+
+                        />
+                        <i data-lucide="mail" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        <i data-lucide="lock" class="h-4 w-4 inline mr-2"></i>
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-300 pl-12 pr-12"
+                            placeholder="Create a strong password"
+                            required
+                            minlength="8"
+                        />
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                        <button
+                            type="button"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onclick="togglePassword('password')"
+                        >
+                            <i data-lucide="eye" id="passwordEyeIcon" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Password Strength Indicator -->
+                    <div class="mt-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div id="passwordStrengthBar" class="progress-bar h-2 rounded-full bg-red-500" style="width: 0%"></div>
+                            </div>
+                            <span id="passwordStrengthText" class="text-xs font-medium text-gray-500">Weak</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Password must be at least 8 characters with uppercase, lowercase, number, and special character</p>
+                    </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="space-y-2">
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">
+                        <i data-lucide="lock" class="h-4 w-4 inline mr-2"></i>
+                        Confirm Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-300 pl-12 pr-12"
+                            placeholder="Confirm your password"
+                            required
+                        />
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                        <button
+                            type="button"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onclick="togglePassword('confirm_password')"
+                        >
+                            <i data-lucide="eye" id="confirmPasswordEyeIcon" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    <div id="passwordMatchMessage" class="text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Signup Button -->
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-105 hover:shadow-lg"
+                    id="signupBtn"
+                >
+                    <i data-lucide="user-plus" class="h-4 w-4 inline mr-2"></i>
+                    Create Account
+                </button>
+
+                <!-- Divider -->
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+                    </div>
+                </div>
+
+                <!-- Social Signup Buttons -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                        onclick="socialSignup('google')"
+                    >
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button
+                        type="button"
+                        class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                        onclick="socialSignup('microsoft')"
+                    >
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                            <path fill="#f25022" d="M1 1h10v10H1z"/>
+                            <path fill="#00a4ef" d="M13 1h10v10H13z"/>
+                            <path fill="#7fba00" d="M1 13h10v10H1z"/>
+                            <path fill="#ffb900" d="M13 13h10v10H13z"/>
+                        </svg>
+                        Microsoft
+                    </button>
+                </div>
+            </form>
+
+            <!-- Login Link -->
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{% block login_url %}/auth/login{% endblock %}" class="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white text-opacity-80 text-sm fade-in">
+            <p>&copy; 2025 ElectroStock. All rights reserved by Madan.</p>
+            <div class="flex justify-center space-x-4 mt-2">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <span>•</span>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                <span>•</span>
+                <a href="#" class="hover:text-white transition-colors">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Toggle password visibility
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(fieldId + 'EyeIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+
+            // Reinitialize the icon
+            lucide.createIcons();
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            let feedback = [];
+
+            // Length check
+            if (password.length >= 8) strength += 1;
+            else feedback.push('at least 8 characters');
+
+            // Uppercase check
+            if (/[A-Z]/.test(password)) strength += 1;
+            else feedback.push('uppercase letter');
+
+            // Lowercase check
+            if (/[a-z]/.test(password)) strength += 1;
+            else feedback.push('lowercase letter');
+
+            // Number check
+            if (/\d/.test(password)) strength += 1;
+            else feedback.push('number');
+
+            // Special character check
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            else feedback.push('special character');
+
+            return { strength, feedback };
+        }
+
+        // Update password strength indicator
+        function updatePasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+
+            const { strength } = checkPasswordStrength(password);
+            const percentage = (strength / 5) * 100;
+
+            strengthBar.style.width = percentage + '%';
+
+            // Update color and text based on strength
+            strengthBar.className = 'progress-bar h-2 rounded-full';
+            strengthText.className = 'text-xs font-medium';
+
+            if (strength <= 1) {
+                strengthBar.classList.add('bg-red-500');
+                strengthText.classList.add('strength-weak');
+                strengthText.textContent = 'Weak';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('bg-orange-500');
+                strengthText.classList.add('strength-fair');
+                strengthText.textContent = 'Fair';
+            } else if (strength <= 3) {
+                strengthBar.classList.add('bg-yellow-500');
+                strengthText.classList.add('strength-good');
+                strengthText.textContent = 'Good';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('bg-green-500');
+                strengthText.classList.add('strength-good');
+                strengthText.textContent = 'Strong';
+            } else {
+                strengthBar.classList.add('bg-green-600');
+                strengthText.classList.add('strength-strong');
+                strengthText.textContent = 'Very Strong';
+            }
+        }
+
+        // Check password match
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const matchMessage = document.getElementById('passwordMatchMessage');
+
+            if (confirmPassword.length > 0) {
+                if (password === confirmPassword) {
+                    matchMessage.textContent = '✓ Passwords match';
+                    matchMessage.className = 'text-sm mt-1 text-green-600';
+                    matchMessage.classList.remove('hidden');
+                } else {
+                    matchMessage.textContent = '✗ Passwords do not match';
+                    matchMessage.className = 'text-sm mt-1 text-red-600';
+                    matchMessage.classList.remove('hidden');
+                }
+            } else {
+                matchMessage.classList.add('hidden');
+            }
+        }
+
+        // Social signup functions
+        function socialSignup(provider) {
+            console.log('Social signup with:', provider);
+            // Implement your social signup logic here
+            // window.location.href = `/auth/${provider}/signup`;
+        }
+
+        // Form validation and enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('signupForm');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+
+            // Password strength checking
+            passwordInput.addEventListener('input', updatePasswordStrength);
+
+            // Password match checking
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            passwordInput.addEventListener('input', checkPasswordMatch);
+
+            // Real-time validation for all inputs
+            const inputs = form.querySelectorAll('input[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('border-red-500')) {
+                        validateField(this);
+                    }
+                });
+            });
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                // Validate all fields before submission
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+
+                // Check password match
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                if (password !== confirmPassword) {
+                    isValid = false;
+                    e.preventDefault();
+                    alert('Passwords do not match!');
+                    return;
+                }
+
+                // Check terms acceptance
+                const termsCheckbox = document.getElementById('terms');
+                if (!termsCheckbox.checked) {
+                    isValid = false;
+                    e.preventDefault();
+                    alert('Please accept the Terms of Service and Privacy Policy');
+                    return;
+                }
+
+                if (isValid) {
+                    const submitBtn = document.getElementById('signupBtn');
+                    const originalText = submitBtn.innerHTML;
+
+                    // Show loading state
+                    submitBtn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 inline mr-2 animate-spin"></i>Creating Account...';
+                    submitBtn.disabled = true;
+
+                    // Re-enable after 5 seconds (in case of error)
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        lucide.createIcons();
+                    }, 5000);
+                }
+            });
+        });
+
+        function validateField(field) {
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Email validation
+            if (field.type === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid email address';
+                }
+            }
+
+            // Password validation
+            if (field.id === 'password') {
+                const { strength, feedback } = checkPasswordStrength(value);
+                if (strength < 3) {
+                    isValid = false;
+                    errorMessage = 'Password needs: ' + feedback.join(', ');
+                }
+            }
+
+            // Required field validation
+            if (field.hasAttribute('required') && value.length === 0) {
+                isValid = false;
+                errorMessage = 'This field is required';
+            }
+
+            // Name validation (only letters and spaces)
+            if ((field.id === 'first_name' || field.id === 'last_name') && value.length > 0) {
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(value)) {
+                    isValid = false;
+                    errorMessage = 'Name should only contain letters and spaces';
+                }
+            }
+
+            // Update field styling
+            if (isValid) {
+                field.classList.remove('border-red-500', 'focus:ring-red-500');
+                field.classList.add('border-gray-300', 'focus:ring-blue-500');
+            } else {
+                field.classList.remove('border-gray-300', 'focus:ring-blue-500');
+                field.classList.add('border-red-500', 'focus:ring-red-500');
+            }
+
+            // Show/hide error message
+            let errorElement = field.parentNode.parentNode.querySelector('.field-error-message');
+            if (!isValid && errorMessage) {
+                if (!errorElement) {
+                    errorElement = document.createElement('p');
+                    errorElement.className = 'field-error-message text-red-600 text-sm mt-1';
+                    field.parentNode.parentNode.appendChild(errorElement);
+                }
+                errorElement.textContent = errorMessage;
+            } else if (errorElement) {
+                errorElement.remove();
+            }
+
+            return isValid;
+        }
+
+        // Add floating label effect
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentNode.classList.add('focused');
+            });
+
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentNode.classList.remove('focused');
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Enter key to submit form
+            if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && e.target.type !== 'checkbox') {
+                const form = document.getElementById('signupForm');
+                const submitBtn = document.getElementById('signupBtn');
+                if (submitBtn && !submitBtn.disabled) {
+                    form.submit();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

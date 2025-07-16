@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}ElectroStock{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+
+<!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i data-lucide="package" class="h-8 w-8 text-blue-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h1 class="text-2xl font-bold text-gray-900">{% block header_title %}ElectroStock{% endblock %}</h1>
+                        <p class="text-sm text-gray-500">Inventory Management System</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            id="searchInput"
+                        />
+                    </div>
+                      {% if user %}
+                      <div class="flex items-center space-x-2 bg-gray-200 px-3 py-1 rounded-full text-sm text-gray-700 font-medium">
+                        <i data-lucide="user" class="h-4 w-4 text-blue-600"></i>
+                        <span>{{ user }}</span>
+                      </div>
+                      {% endif %}
+
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600" onclick="toggleNotifications()">
+                        <i data-lucide="bell" class="h-5 w-5"></i>
+                        <span class="absolute top-0 right-0 block h-2 w-2 bg-red-400 rounded-full notification-dot"></span>
+                    </button>
+                    <button class="p-2 text-gray-400 hover:text-gray-600">
+                        <i data-lucide="settings" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+<!-- Content Area -->
+<main class="px-6 py-8">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="bg-white text-center py-4 text-sm text-gray-500 mt-6">
+  &copy; 2025 ElectroStock. All rights reserved.
+</footer>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
