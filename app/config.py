@@ -10,5 +10,4 @@ DB_CONFIG={
     'port': int(os.getenv('DB_PORT',1234)),
 }
 
-# JWT_SECRET = os.getenv('JWT_SECRET_KEY')
-JWT_SECRET ='vmFpf45O594QkATqukUP65ec94P0GjIYjO-UfJCQYSI'
+JWT_SECRET = os.getenv('JWT_SECRET_KEY')
