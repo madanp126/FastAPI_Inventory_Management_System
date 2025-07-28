@@ -1,8 +1,9 @@
-from fastapi import FastAPI, APIRouter,Request,Form
+from fastapi import FastAPI, APIRouter,Request,Form ,Response
 from fastapi.responses import  HTMLResponse,RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.db import get_connection
 from passlib.context import CryptContext
+from ..utils.jwt import create_access_token
 
 templates = Jinja2Templates(directory="app/templates")
 router=APIRouter()
@@ -12,29 +13,29 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@router.get('/dashboard', response_class=HTMLResponse)
-async def dashboard_page(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
 @router.post('/login')
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     conn = get_connection()
     cursor = conn.cursor()
 
     try:
-        # Fetch user by email
-        cursor.execute("SELECT password_hash FROM inv_users WHERE email = ?", (email,))
+        cursor.execute("SELECT user_id, password_hash FROM inv_users WHERE email = ?", (email,))
         result = cursor.fetchone()
 
         if result:
-            db_password_hash = result[0]
-            # Verify password
+            user_id, db_password_hash = result
+
             if pwd_context.verify(password, db_password_hash):
+                token_data = {"sub": email, "user_id": user_id}
+                token = create_access_token(token_data)
+
                 request.session["user"] = email
+                request.session["token"] = token
+                print("Generated JWT Token:", token)
 
                 return RedirectResponse(url="/dashboard", status_code=303)
-            print(request.session)
-        # If no match or password invalid
+
+        # Invalid login
         return templates.TemplateResponse("login.html", {
             "request": request,
             "error": "Invalid email or password"

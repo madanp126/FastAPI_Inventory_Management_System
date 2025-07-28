@@ -10,11 +10,5 @@ DB_CONFIG={
     'port': int(os.getenv('DB_PORT',1234)),
 }
 
-JWT_SECRET = os.getenv('JWT_SECRET_KEY')
-
-SMTP_CONFIG={
-    'server':os.getenv('SMTP_SERVER'),
-    'port':int(os.getenv('SMTP_PORT')),
-    'username':os.getenv('SMTP_USER'),
-    'password':os.getenv('SMTP_PASSWORD'),
-}
+# JWT_SECRET = os.getenv('JWT_SECRET_KEY')
+JWT_SECRET ='vmFpf45O594QkATqukUP65ec94P0GjIYjO-UfJCQYSI'

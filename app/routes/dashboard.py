@@ -1,35 +1,49 @@
-from fastapi import APIRouter, Request ,Query
+from fastapi import APIRouter, Request, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from starlette.responses import RedirectResponse
-
+from ..utils.jwt import verify_access_token
 from app.db import get_connection
 
 templates = Jinja2Templates(directory="app/templates")
 router = APIRouter()
 
 @router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request,updated : int = Query(0)):
-    user = request.session.get("user")
+async def dashboard(request: Request, updated: int = Query(0)):
 
-    if not user:
+    token = request.session.get("token")
+    email = request.session.get("user")
+    print("Session token:", token)
+
+    if not token:
+        return RedirectResponse("/auth/login", status_code=303)
+
+    try:
+        user_data = verify_access_token(token)
+        user_id = user_data.get("user_id")
+        print("Token valid for user:", user_id)
+
+    except Exception as e:
+        print("Token verification failed:", str(e))
         return RedirectResponse("/auth/login", status_code=303)
 
     conn = get_connection()
     cursor = conn.cursor()
 
     try:
+        # Fetch recent products
         cursor.execute("""
-            SELECT TOP 10 product_id,product_name, category, quantity, price,
-                CASE WHEN quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
-            FROM inv_products where is_active =1
+            SELECT TOP 10 product_id, product_name, category, quantity, price,
+                   CASE WHEN quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
+            FROM inv_products
+            WHERE is_active = 1
             ORDER BY inserted_date DESC
         """)
         rows = cursor.fetchall()
 
         recent_products = [
             {
-                "product_id":row[0],
+                "product_id": row[0],
                 "product_name": row[1],
                 "category": row[2],
                 "quantity": row[3],
@@ -38,12 +52,15 @@ async def dashboard(request: Request,updated : int = Query(0)):
             }
             for row in rows
         ]
+
+        # Fetch sold products
         cursor.execute("""
-                 SELECT TOP 10 sale_transaction_id,product_name, category, quantity, price,
-                     CASE WHEN quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
-                 FROM inv_sale_transaction where is_active =1 and is_sold=1
-                 ORDER BY inserted_date DESC
-             """)
+            SELECT TOP 10 sale_transaction_id, product_name, category, quantity, price,
+                   CASE WHEN quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
+            FROM inv_sale_transaction
+            WHERE is_active = 1 AND is_sold = 1
+            ORDER BY inserted_date DESC
+        """)
         rows = cursor.fetchall()
 
         sold_products = [
@@ -54,7 +71,6 @@ async def dashboard(request: Request,updated : int = Query(0)):
                 "quantity": row[3],
                 "price": row[4],
                 "status": row[5]
-
             }
             for row in rows
         ]
@@ -63,15 +79,15 @@ async def dashboard(request: Request,updated : int = Query(0)):
         print("Error fetching products:", e)
         recent_products = []
         sold_products = []
+
     finally:
         cursor.close()
         conn.close()
 
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
-        "user": user,
+        "user": email,
         "recent_products": recent_products,
         "updated": updated,
         "sold_products": sold_products,
     })
-
