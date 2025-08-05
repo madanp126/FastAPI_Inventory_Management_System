@@ -6,7 +6,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+
+
+
 </head>
+<style>
+@keyframes popup-slide-fade {
+  from {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-popup {
+  animation: popup-slide-fade 0.4s ease-out forwards;
+}
+</style>
+
+
+
 <body class="bg-gray-100">
 
 <!-- Header -->
@@ -44,9 +73,36 @@
                         <i data-lucide="bell" class="h-5 w-5"></i>
                         <span class="absolute top-0 right-0 block h-2 w-2 bg-red-400 rounded-full notification-dot"></span>
                     </button>
-                    <button class="p-2 text-gray-400 hover:text-gray-600">
-                        <i data-lucide="settings" class="h-5 w-5"></i>
-                    </button>
+
+                    <!-- Settings Button with Dropdown -->
+                    <div class="relative inline-block text-left">
+                      <!-- Trigger -->
+                      <button onclick="toggleSettingsDropdown()" class="flex items-center p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full transition">
+                        <i data-lucide="settings" class="h-6 w-6"></i>
+                        <span class="sr-only">Open settings menu</span>
+                      </button>
+
+                      <!-- Dropdown -->
+                      <div id="settingsDropdown" class="hidden absolute right-0 mt-2 w-48 origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                        <div class="py-1 text-sm text-gray-700">
+                            <form method="POST" action="/users/profile">
+                               <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-left">
+                                <i data-lucide="user" class="h-4 w-4 text-blue-500"></i>
+                                <span>Profile</span>
+                               </button>
+                            </form>
+
+                            <form method="POST" action="/users/logout">
+                              <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-left">
+                                <i data-lucide="log-out" class="h-4 w-4 text-red-500"></i>
+                                <span>Logout</span>
+                              </button>
+                            </form>
+
+                        </div>
+                      </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -54,17 +110,35 @@
 
 <!-- Content Area -->
 <main class="px-6 py-8">
-  {% block content %}{% endblock %}
+  {% block content %} {% endblock %}
 </main>
+
 
 <!-- Footer -->
 <footer class="bg-white text-center py-4 text-sm text-gray-500 mt-6">
-  &copy; 2025 ElectroStock. All rights reserved.
+  &copy; 2025 ElectroStock. All rights reserved by Madan.
 </footer>
 
 <script>
   lucide.createIcons();
 </script>
+
+<script>
+  function toggleSettingsDropdown() {
+    const dropdown = document.getElementById("settingsDropdown");
+    dropdown.classList.toggle("hidden");
+  }
+
+  // Close dropdown on click outside
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("settingsDropdown");
+    const button = event.target.closest("[onclick='toggleSettingsDropdown()']");
+    if (!button && !dropdown.contains(event.target)) {
+      dropdown.classList.add("hidden");
+    }
+  });
+</script>
+
 
 </body>
 </html>

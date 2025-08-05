@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, updated: int = Query(0)):
-
+    print("Dashboard")
     token = request.session.get("token")
     email = request.session.get("user")
     print("Session token:", token)
@@ -84,7 +84,7 @@ async def dashboard(request: Request, updated: int = Query(0)):
         cursor.close()
         conn.close()
 
-    return templates.TemplateResponse("dashboard.html", {
+    return templates.TemplateResponse("AdminDashboard.html", {
         "request": request,
         "user": email,
         "recent_products": recent_products,

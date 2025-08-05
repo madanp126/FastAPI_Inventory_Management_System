@@ -10,6 +10,12 @@
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
 
     <style>
         /* Custom animations */
@@ -90,29 +96,37 @@
 
         </div>
 
+     <!-- Error Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div id="popup-alert"
+                 class="fixed top-6 right-6 z-50 max-w-sm w-full flex items-start p-4 border-l-4 shadow-lg rounded-lg bg-white transition-all animate-popup
+                 {% if message.tags == 'error' %} border-red-500 {% else %} border-blue-500 {% endif %}">
+
+              {% if message.tags == 'error' %}
+                <i data-lucide="alert-circle" class="w-6 h-6 text-red-500 mr-3 mt-1"></i>
+                <div class="text-sm text-red-800 flex-1">{{ message.message }}</div>
+              {% else %}
+                <i data-lucide="info" class="w-6 h-6 text-blue-500 mr-3 mt-1"></i>
+                <div class="text-sm text-blue-800 flex-1">{{ message.message }}</div>
+              {% endif %}
+
+              <!-- Dismiss Button -->
+              <button onclick="document.getElementById('popup-alert').remove()"
+                      class="ml-3 text-gray-400 hover:text-gray-700 transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+
         <!-- Login Card -->
         <div class="glass-effect rounded-2xl shadow-2xl p-8 slide-in">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
                 <p class="text-gray-600">Sign in to your account to continue</p>
             </div>
-
-            <!-- Error Messages -->
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 border border-red-200{% else %}bg-blue-50 border border-blue-200{% endif %} fade-in">
-                        <div class="flex items-center">
-                            {% if message.tags == 'error' %}
-                                <i data-lucide="alert-circle" class="h-5 w-5 text-red-600 mr-2"></i>
-                                <p class="text-red-800 text-sm">{{ message }}</p>
-                            {% else %}
-                                <i data-lucide="info" class="h-5 w-5 text-blue-600 mr-2"></i>
-                                <p class="text-blue-800 text-sm">{{ message }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
 
             <!-- Login Form -->
             <form action="{% block form_action %}/auth/login{% endblock %}" method="post" class="space-y-2">
@@ -241,6 +255,8 @@
                     </a>
                 </p>
             </div>
+
+
         </div>
 
         <!-- Footer -->
@@ -390,6 +406,22 @@
             }
         });
     </script>
+
+<script>
+  // Lucide icons
+  lucide.createIcons();
+
+  // Auto-dismiss popup after 5 seconds
+  setTimeout(() => {
+    const alert = document.getElementById('popup-alert');
+    if (alert) {
+      alert.classList.add('opacity-0', 'translate-y-2', 'scale-90');
+      setTimeout(() => alert.remove(), 300);
+    }
+  }, 5000);
+</script>
+
+
 </body>
 </html>
 {% endblock %}

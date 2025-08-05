@@ -24,10 +24,11 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
 
         if result:
             user_id, db_password_hash = result
-
             if pwd_context.verify(password, db_password_hash):
+                print("User verified")
                 token_data = {"sub": email, "user_id": user_id}
                 token = create_access_token(token_data)
+                print("token created")
 
                 request.session["user"] = email
                 request.session["token"] = token
@@ -35,11 +36,14 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
 
                 return RedirectResponse(url="/dashboard", status_code=303)
 
-        # Invalid login
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "error": "Invalid email or password"
-        })
+            # Invalid login
+            print("error hit at login")
+            return templates.TemplateResponse("login.html", {
+                "request": request,
+                # "error": "Invalid email or password"
+                "messages": [{"message": "Invalid email or password", "tags": "error"}]
+            })
+
 
     except Exception as e:
         return templates.TemplateResponse("login.html", {
