@@ -212,97 +212,239 @@ async def sell_product(
         cursor.close()
         conn.close()
 
+
 @router.post("/generate_bill")
 async def generate_bill(
-        request: Request,
-        product_name: str = Form(...),
+    request: Request,
+    product_name: str = Form(...),
     category: str = Form(...),
     quantity: int = Form(...),
     price: float = Form(...)
-, customer_email=None):
-    # 1. Get user email from session
+):
+
+    # Get logged-in user
     user_email = request.session.get("user")
-    customer_name = "Customer"  # default fallback
+
+    customer_name = "Customer"
+    customer_email = ""
 
     if user_email:
         conn = get_connection()
         cursor = conn.cursor()
+
         try:
-            cursor.execute("SELECT user_firstname,user_lastname,email FROM inv_users WHERE email = ? AND is_active = 1", (user_email,))
+            cursor.execute("""
+                SELECT user_firstname,
+                       user_lastname,
+                       email
+                FROM inv_users
+                WHERE email = ?
+                  AND is_active = 1
+            """, (user_email,))
+
             row = cursor.fetchone()
+
             if row:
-                customer_name = row[0]+" "+row[1]
+                customer_name = f"{row[0]} {row[1]}"
                 customer_email = row[2]
+
         finally:
             cursor.close()
             conn.close()
 
     total_price = quantity * price
 
+    invoice_no = f"INV{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
     product_data = {
-        "customer": customer_name,  # Can be dynamic later
+        "invoice_no": invoice_no,
+        "customer": customer_name,
         "customer_email": customer_email,
         "date": date.today().strftime("%d-%m-%Y"),
         "items": [
-            {"name": product_name, "qty": quantity, "price": price}
+            {
+                "name": product_name,
+                "category": category,
+                "qty": quantity,
+                "price": price
+            }
         ],
         "total": total_price
     }
 
     html_template = """
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 30px; }
-            h2 { text-align: center; color: #333; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #aaa; padding: 10px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          <h2>Invoice</h2>
-          <p><strong>Customer:</strong> {{ customer }}</p>
-          <p><strong>Customer:</strong> {{ customer_email }}</p>
-          <p><strong>Date:</strong> {{ date }}</p>
+    <html>
+    <head>
+        <style>
 
-          <table>
-            <tr>
-              <th>Sr.No.</th>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-            {% for item in items %}
-            <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.qty }}</td>
-              <td>₹{{ item.price }}</td>
-              <td>₹{{ item.qty * item.price }}</td>
-            </tr>
-            {% endfor %}
-          </table>
+            body {
+                font-family: Arial, sans-serif;
+                width: 1000px;
+                margin: 0 auto;
+                padding: 40px;
+                color: #333;
+                background: white;
+            }
 
-          <h3 style="text-align:right;">Total: ₹{{ total }}</h3>
-        </body>
-      </html>
-      """
+            .invoice-container {
+                border: 3px solid #000;
+                padding: 30px;
+                border-radius: 10px;
+            }
+
+            .company-name {
+                text-align: center;
+                font-size: 42px;
+                font-weight: bold;
+                color: #1f2937;
+                margin-bottom: 10px;
+            }
+
+            .company-subtitle {
+                text-align: center;
+                font-size: 22px;
+                color: #6b7280;
+                margin-bottom: 25px;
+            }
+
+            .invoice-title {
+                text-align: center;
+                font-size: 36px;
+                font-weight: bold;
+                color: #dc2626;
+                margin-bottom: 25px;
+            }
+
+            .details {
+                font-size: 24px;
+                line-height: 2;
+                margin-bottom: 25px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 22px;
+            }
+
+            th {
+                background-color: #f3f4f6;
+                font-size: 24px;
+            }
+
+            th, td {
+                border: 2px solid #d1d5db;
+                padding: 15px;
+                text-align: center;
+            }
+
+            .total-section {
+                margin-top: 30px;
+                text-align: right;
+                font-size: 32px;
+                font-weight: bold;
+                color: #dc2626;
+            }
+
+            .footer {
+                margin-top: 50px;
+                text-align: center;
+                font-size: 22px;
+                color: #6b7280;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="invoice-container">
+
+            <div class="company-name">
+                ELECTROSTOCK
+            </div>
+
+            <div class="company-subtitle">
+                Inventory Management System
+            </div>
+
+            <div class="invoice-title">
+                SALES INVOICE
+            </div>
+
+            <div class="details">
+                <strong>Invoice No:</strong> {{ invoice_no }} <br>
+                <strong>Customer Name:</strong> {{ customer }} <br>
+                <strong>Email:</strong> {{ customer_email }} <br>
+                <strong>Date:</strong> {{ date }}
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr.No</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>₹{{ item.price }}</td>
+                        <td>₹{{ item.qty * item.price }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                Total Amount : ₹{{ total }}
+            </div>
+
+            <div class="footer">
+                Thank You For Shopping With ElectroStock
+            </div>
+
+        </div>
+
+    </body>
+    </html>
+    """
 
     rendered_html = Template(html_template).render(**product_data)
 
-    # Generate PNG from HTML
-    hti = Html2Image()
-    temp_image_path = "bill_image.png"
-    hti.screenshot(html_str=rendered_html, save_as=temp_image_path)
+    # High Resolution Output
+    hti = Html2Image(
+        size=(1400, 1800)
+    )
 
-    with open(temp_image_path, "rb") as f:
-        image_bytes = f.read()
-    os.remove(temp_image_path)
+    image_file = f"invoice_{invoice_no}.png"
 
-    return StreamingResponse(io.BytesIO(image_bytes), media_type="image/png")
+    hti.screenshot(
+        html_str=rendered_html,
+        save_as=image_file
+    )
 
+    with open(image_file, "rb") as file:
+        image_bytes = file.read()
+
+    os.remove(image_file)
+
+    return StreamingResponse(
+        io.BytesIO(image_bytes),
+        media_type="image/png"
+    )
 
 
 

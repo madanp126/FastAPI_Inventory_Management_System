@@ -34,7 +34,120 @@
 }
 </style>
 
+<script>
+function openStockAlertModal() {
+    document
+        .getElementById("stockAlertModal")
+        .classList.remove("hidden");
 
+    loadOutOfStockProducts();
+}
+
+function closeStockAlertModal() {
+    document
+        .getElementById("stockAlertModal")
+        .classList.add("hidden");
+}
+
+async function loadOutOfStockProducts() {
+
+    try {
+
+        const response = await fetch("/inventory/Out_Of_Stock_Alert");
+        console.log(response,'madan');
+
+        const products = await response.json();
+        console.log(products,'madan2');
+        let html = "";
+
+        if (products.length === 0) {
+
+            html = `
+                <tr>
+                    <td colspan="4"
+                        class="text-center text-green-600 font-semibold p-5">
+                        ✅ No Out Of Stock Products
+                    </td>
+                </tr>
+            `;
+        }
+        else {
+
+            products.forEach(product => {
+
+                html += `
+                    <tr class="border-b hover:bg-gray-50">
+
+                        <td class="p-3">
+                            ${product.product_name}
+                        </td>
+
+                        <td class="p-3">
+                            ${product.category}
+                        </td>
+
+                        <td class="p-3 text-red-600 font-bold">
+                            ${product.quantity}
+                        </td>
+
+                        <td class="p-3">
+                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded">
+                                Out Of Stock
+                            </span>
+                        </td>
+
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById("alertTableBody").innerHTML = html;
+
+    } catch (err) {
+
+        console.error(err);
+
+        document.getElementById("alertTableBody").innerHTML = `
+            <tr>
+                <td colspan="4"
+                    class="text-center text-red-600 p-5">
+                    Error loading stock alerts
+                </td>
+            </tr>
+        `;
+    }
+}
+</script>
+<script>
+async function loadStockAlertCount() {
+
+    try {
+
+        const response = await fetch("/inventory/Out_Of_Stock_Alert");
+        const products = await response.json();
+
+        const countElement = document.getElementById("stockAlertCount");
+
+        if (Array.isArray(products)) {
+
+            countElement.innerText = products.length;
+
+            if (products.length === 0) {
+                countElement.classList.add("hidden");
+            } else {
+                countElement.classList.remove("hidden");
+            }
+        }
+
+    } catch (err) {
+        console.error("Failed to load stock alert count:", err);
+    }
+}
+
+window.addEventListener("load", function () {
+    loadStockAlertCount();
+});
+</script>
 
 <body class="bg-gray-100">
 
@@ -69,9 +182,15 @@
                       </div>
                       {% endif %}
 
-                    <button class="relative p-2 text-gray-400 hover:text-gray-600" onclick="toggleNotifications()">
+                    <button
+                        class="relative p-2 text-gray-400 hover:text-gray-600"
+                        onclick="openStockAlertModal()">
                         <i data-lucide="bell" class="h-5 w-5"></i>
-                        <span class="absolute top-0 right-0 block h-2 w-2 bg-red-400 rounded-full notification-dot"></span>
+                        <span
+                            id="stockAlertCount"
+                            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                            0
+                        </span>
                     </button>
 
                     <!-- Settings Button with Dropdown -->
@@ -139,6 +258,54 @@
   });
 </script>
 
+<!-- Stock Alert Modal -->
+<div
+    id="stockAlertModal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl animate-popup">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b px-6 py-4">
+            <h2 class="text-xl font-bold text-red-600">
+                🚨 Out of Stock Alerts
+            </h2>
+
+            <button onclick="closeStockAlertModal()">
+                ✖
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 max-h-[500px] overflow-y-auto">
+
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-3 text-left">Product</th>
+                        <th class="p-3 text-left">Category</th>
+                        <th class="p-3 text-left">Stock</th>
+                        <th class="p-3 text-left">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="alertTableBody">
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="border-t p-4 text-right">
+            <button
+                onclick="closeStockAlertModal()"
+                class="bg-gray-600 text-white px-4 py-2 rounded">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
 
 </body>
 </html>

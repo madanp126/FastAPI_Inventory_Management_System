@@ -55,11 +55,12 @@ async def dashboard(request: Request, updated: int = Query(0)):
 
         # Fetch sold products
         cursor.execute("""
-            SELECT TOP 10 sale_transaction_id, product_name, category, quantity, price,
-                   CASE WHEN quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
-            FROM inv_sale_transaction
-            WHERE is_active = 1 AND is_sold = 1
-            ORDER BY inserted_date DESC
+            SELECT TOP 10 ist.sale_transaction_id, ist.product_name, ist.category, ist.quantity, ist.price,
+                   CASE WHEN ip.quantity > 0 THEN 'In Stock' ELSE 'Out of Stock' END as status
+            FROM inv_sale_transaction ist
+        left join inv_products ip on ip.product_id = ist.product_id
+            WHERE ist.is_sold = 1
+            ORDER BY ist.sale_transaction_id DESC
         """)
         rows = cursor.fetchall()
 

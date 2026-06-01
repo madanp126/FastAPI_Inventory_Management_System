@@ -20,6 +20,10 @@ app.include_router(sale.router,prefix="/sales")
 app.include_router(inventory.router,prefix="/inventory")
 app.include_router(product_info.router,prefix="/product_info")
 
+
 app.include_router(dashboard.router)
+
+for route in app.routes:
+    print(route.path)
 
 

@@ -2,3 +2,10 @@ html2image
 flask
 bcrypt
 passlib
+
+fastapi
+uvicorn
+python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic
